@@ -6,25 +6,46 @@ from django.http import JsonResponse
 from django.core import serializers
 
 
+def update(request):
+    print(request)
+    
+    return 'ok'
+
 
 def index(request):
-    ctx = {}
-    url_par={}
-    url_par["ip"] = request.GET.get("ip")
-    url_par["mac"] = request.GET.get("mac")
-    url_par["comment"] = request.GET.get("comment")
     
-    if url_par:
-        IPs = IP_field.objects.filter(IP__icontains=url_par['ip'], MAC__icontains=url_par['mac'], comment__icontains=url_par['comment'])
-    else:
-        IPs = IP_field.objects.all()
+    if request.method == 'GET':
+        ctx = {}
+        url_par={}
+        url_par["ip"] = request.GET.get("ip") or ''
+        url_par["mac"] = request.GET.get("mac") or ''
+        url_par["comment"] = request.GET.get("comment") or ''
+        
+        
+        
+        if url_par:
+            IPs = IP_field.objects.filter(IP__icontains=url_par['ip'], MAC__icontains=url_par['mac'], comment__icontains=url_par['comment'])
+        else:
+            IPs = IP_field.objects.all()
 
-    
-    is_ajax_request = request.headers.get("x-requested-with") == "XMLHttpRequest"
-    if is_ajax_request:
+        
+        is_ajax_request = request.headers.get("x-requested-with") == "XMLHttpRequest"
+        if is_ajax_request:
+            data = serializers.serialize("json", IPs, fields=('IP', 'MAC', 'comment', 'device_type', 'DateTime'))
+            return JsonResponse(data, safe=False)
+        
         data = serializers.serialize("json", IPs, fields=('IP', 'MAC', 'comment', 'device_type', 'DateTime'))
-        return JsonResponse(data, safe=False)
-    
-    data = serializers.serialize("json", IPs, fields=('IP', 'MAC', 'comment', 'device_type', 'DateTime'))
-    ctx["IPs"] = data
-    return render(request, "manager/index.html", context=ctx)
+        return render(request, "manager/index.html")
+    elif request.method == 'POST':
+        ip = request.POST.get('ip')
+        mac = request.POST.get('mac')
+        comment = request.POST.get('comment')
+        type = request.POST.get('type')
+        
+        obj = IP_field.objects.get(IP=ip)
+        obj.MAC = mac
+        obj.comment = comment
+        obj.device_type = type
+        obj.save()
+        
+        return HttpResponse('ok')

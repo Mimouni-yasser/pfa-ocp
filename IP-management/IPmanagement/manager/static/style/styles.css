@@ -7,7 +7,9 @@ table, tr
 
 .search-bar
 {
-
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
 }
 .search-bar span
 {

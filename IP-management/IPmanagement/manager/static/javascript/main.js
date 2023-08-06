@@ -10,7 +10,7 @@ function isEqual(obj1, obj2) {
     var props1 = Object.getOwnPropertyNames(obj1);
     var props2 = Object.getOwnPropertyNames(obj2);
     if (props1.length != props2.length) {
-        return false; //negative value = database has newer data, //positive value = localsheet has newer data
+        return false; 
     }
     for (var i = 0; i < props1.length; i++) {
         let val1 = obj1[props1[i]];
@@ -26,6 +26,21 @@ function isObject(object) {
     return object != null && typeof object === 'object';
 }
 
+var changed = function(instance, cell, x, y, value) {
+    clearInterval(scheduled_function)
+    IP = results_sheet.getCellFromCoords(0, y).innerHTML
+    MAC = results_sheet.getCellFromCoords(1, y).innerHTML
+    COMMENT = results_sheet.getCellFromCoords(2,y).innerHTML
+    TYPE = results_sheet.getCellFromCoords(3,y).innerHTML
+    
+    $.post('update/', {ip: IP, mac:MAC, comment: COMMENT, type: TYPE})
+        .done(function(kk){
+            console.log(kk)
+            scheduled_function = setInterval(() => {
+                ajax_call(endpoint, last_IP_search)
+                }, 2000);
+        })
+}
 
 results_sheet = jspreadsheet(document.getElementById('spreadsheet'), {
     columns: [
@@ -34,12 +49,13 @@ results_sheet = jspreadsheet(document.getElementById('spreadsheet'), {
         { type: 'text', title:'MAC', width:200 },
         { type: 'text', title:'COMMENTAIRE', width:300 },
         { type: 'text', title:'type', width:200 },
-        { type: 'text', title:'date ajouter', width:200 },
+        { type: 'calendar', title:'date ajouter', width:200 },
     ],
     allowInsertColumn: false,
     allowDeleteRow: false,
     allowDeleteColumn: false,
     allowInsertRow: false,
+    onchange: changed,
 });
 
 let ajax_call = function (endpoint, request_parameters) {

@@ -4,11 +4,12 @@
 <title> hello lol </title>
 {% block header %}
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<script src="https://bossanova.uk/jspreadsheet/v4/jexcel.js"></script>
-<script src="https://jsuites.net/v4/jsuites.js"></script>
-<link rel="stylesheet" href="https://jsuites.net/v4/jsuites.css" type="text/css" />
-<link rel="stylesheet" href="https://bossanova.uk/jspreadsheet/v4/jexcel.css" type="text/css" />
-<script src="https://code.jquery.com/jquery-3.7.0.js" integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
+{%load static%}
+<script src="{% static "javascript/jexcel.js" %}"></script>
+<script src="{% static "javascript/jsuites.js" %}"></script>
+<link rel="stylesheet" href="{% static "style/jsuites.css" %}" type="text/css" />
+<link rel="stylesheet" href="{% static "style/jexcel.css" %}" type="text/css" />
+<script src="{% static "javascript/jquery.js" %}"></script>
 {% endblock %} 
 </head>
 
