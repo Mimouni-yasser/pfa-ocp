@@ -34,7 +34,7 @@ except pywintypes.com_error as e:
     print("Method call failed with HRESULT {}".format(e.hresult)) #don't understand shit about these error messages
     #TODO: add error message decoding ...
     #!nevermind can't seem to get the HRESULT :(
-    #! HA got it
+    #!HA got it
     print("\n error decoded: {0}", format(client.GetErrorString(e.hresult)))
     
     client.Disconnect()

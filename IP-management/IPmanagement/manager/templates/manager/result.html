@@ -1,0 +1,16 @@
+
+
+  
+{% if IPs %}
+  {% for IP in IPs %}
+  <tr>
+    <th>{{ IP.IP }}</th>
+    <th>{{ IP.MAC }}</th>
+    <th>{{ IP.COMMENT }}</th>
+  </tr>
+  {% endfor %}
+{% else %}
+  <tr>
+    <td colspan=3>No IPs. </td>
+  </tr>
+{% endif %}
