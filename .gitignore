@@ -8,3 +8,4 @@ IP-management/IPmanagement/IPmanagement/__pycache__/
 IP-management/IPmanagement/manager/__pycache__/
 IP-management/IPmanagement/manager/migrations
 IP-management/IPmanagement/db.sqlite3
+out.sql
