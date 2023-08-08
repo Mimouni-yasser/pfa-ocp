@@ -1,6 +1,13 @@
 import win32com.client
 import ctypes
 import pywintypes
+import openpyxl
+from time import sleep
+import random
+
+
+wb = openpyxl.load_workbook('book.xlsm')
+sh = wb.active
 
 #TODO: wrap everything in a main function and make it callable with sys args
 
@@ -29,7 +36,7 @@ except pywintypes.com_error as e:
     
     
 try:
-    result = client.GetItemProperties('DevExample1!Energie_1_ActiveDigue', 2, arr)
+    result = client.GetItemProperties('DevExample_1!Energie_1_Active_BPBIS', 2, arr)
 except pywintypes.com_error as e:
     print("Method call failed with HRESULT {}".format(e.hresult)) #don't understand shit about these error messages
     #TODO: add error message decoding ...
@@ -48,4 +55,18 @@ if(result[1] != (0, 0)):
 for i in range(2):
     print("value of propertyID {0} is {1}".format(i, result[0][i]))
     
-
+for i in range(17, 40):
+    result = client.GetItemProperties('DevExample_1!Energie_1_Active_Digue', 2, arr)
+    print(result[0][0])
+    sh["J{0}".format(i)] = result[0][0]
+    sleep(random.uniform(0.5, 3))
+    
+client.Disconnect()
+wb.save('book.xlsx')
+    
+# while True:
+#     if(q_c != q_a): break
+#     elif(indice_h > 100): break
+#     else:
+#         sleep(3.6)
+#         indice_h +1 
