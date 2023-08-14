@@ -9,3 +9,5 @@ IP-management/IPmanagement/manager/__pycache__/
 IP-management/IPmanagement/manager/migrations
 IP-management/IPmanagement/db.sqlite3
 out.sql
+python opc/book.xlsm
+python opc/__pycache__/COM-server.cpython-311.pyc
