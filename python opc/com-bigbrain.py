@@ -88,7 +88,7 @@ except pywintypes.com_error as e:
     client.Disconnect()
     excel = None
 
-print(s.GREEN + "excel file loaded, configuration finished sucessfully." + s.RESET)
+print(s.GREEN + "excel file loaded, configuration finished good sucessfully." + s.RESET)
 excel.Visible = True
 ########################
 # sleep(5)
