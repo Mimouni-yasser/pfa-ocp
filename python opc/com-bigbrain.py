@@ -24,7 +24,7 @@ class row():
     
 def write():
     cell = workbook.Sheets(1).Range('J22')
-    result = client.GetItemProperties('DevExample_1!Energie_1_Active_BPBIS', 2, arr)
+    result = client.GetItemProperties('API!Energie_Active2_PLT3', 2, arr)
     cell.Value = result[0][0]
     
 
@@ -56,7 +56,7 @@ except pywintypes.com_error as e:
     
 print(s.YELLOW + 'testing connectivety with OPC server...' + s.RESET)
 try:
-    result = client.GetItemProperties('DevExample_1!Energie_1_Active_BPBIS', 2, arr)
+    result = client.GetItemProperties('API!Energie_Active2_PLT3', 2, arr)
 except pywintypes.com_error as e:
     print(s.RED + "Method call failed with HRESULT {}".format(e.hresult))
     print("\n error decoded: {0}", format(client.GetErrorString(e.hresult)) + s.RESET)
@@ -81,7 +81,7 @@ print(s.GREEN + "excel COM client succesfully created" + s.RESET)
 print(s.YELLOW + "openning excel file..."+s.RESET)
 
 try:
-    workbook = excel.Workbooks.Open("C:/Users/Yasser Mimouni/Desktop/pfa me/python opc/book.xlsx")
+    workbook = excel.Workbooks.Open(r"C:\Users\lenovo\Desktop\RP5\RAPPORT DE PRODUCTION\book.xlsm")
 except pywintypes.com_error as e:
     print(s.RED + "error occured while loading file to excel instance: " + s.RESET)
     print(e)
