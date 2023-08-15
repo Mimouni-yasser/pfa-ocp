@@ -21,6 +21,12 @@ class s():
 class row():
     insert_at = None
     
+    
+def write():
+    cell = workbook.Sheets(1).Range('J22')
+    result = client.GetItemProperties('DevExample_1!Energie_1_Active_BPBIS', 2, arr)
+    cell.Value = result[0][0]
+    
 
 #TODO: wrap everything in a main function and make it callable with sys args
 
@@ -72,7 +78,7 @@ except:
     
 print(s.GREEN + "excel COM client succesfully created" + s.RESET)
 
-print(s.YELLOW + "openning excel file..."+s.YELLOW)
+print(s.YELLOW + "openning excel file..."+s.RESET)
 
 try:
     workbook = excel.Workbooks.Open("C:/Users/Yasser Mimouni/Desktop/pfa me/python opc/book.xlsx")
@@ -92,5 +98,8 @@ excel.Visible = True
 ######################
 print(s.YELLOW + "Starting read-write loop" +s.RESET)
 
-#schedule.every(1).hour.do(insert_row)
+schedule.every(3).seconds.do(write)
+
+while True:
+    schedule.run_pending()
 
