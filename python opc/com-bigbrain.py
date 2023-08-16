@@ -4,6 +4,9 @@ import pywintypes
 import schedule
 from time import sleep
 from enum import Enum
+import sys
+import os.path
+import datetime
 
 
 
@@ -32,59 +35,112 @@ class sheet(Enum):
     Arret_RPTS = 11
     Arret_Criblage = 12
     Arrets = 13
-
+class col_index(Enum):
+    quality = 3
+    code = 4
+    repere_destokage = 5
+    destination = 6
+    repere_stokage = 7
+    bascule = 8
+    index_bascule = 10
+    index_horaire = 12
+    post = 14
+    heures = 2
+    
 class entery():
-    insert_offset = 0
-    def __init__(self, q: str, code: str, ref_des:str, dest:str, ref_sto:str, bascule:str, index_bascule: int, index_horaire: int, post: str):
-        self.quality = q
+    count = 16
+    def __init__(self, quality: str, code: str, repere_destokage:str, destination:str, repere_stokage:str, bascule:str, index_bascule: int, index_horaire: int, post: str):
+        self.quality = quality
         self.code = code
-        self.repere_destokage = ref_des
-        self.repere_stokage = ref_sto
-        self.destination = dest
+        self.repere_destokage = repere_destokage
+        self.repere_stokage = repere_stokage
+        self.destination = destination
         self.bascule = bascule
         self.index_bascule = index_bascule
         self.index_horaire = index_horaire
         self.post = post
-    
+        self.insert_offset = entery.count + 1
+        self.heure = 0
+        entery.count = entery.count + 1
+        
     def update_index(self, bascule, horaire):
         self.index_bascule = bascule
         self.index_horaire = horaire
     
-    
-# def write_entery_to_excel(current_enteries: list[entery]):
-#     workbook.Sheets[]
+def write_entery_to_excel(current_enteries: list[entery]):
+    worksheet = workbook.Sheets(1)
+    for entery in current_enteries:
+        worksheet.Cells(entery.insert_offset, col_index.quality.value).Value = entery.quality
+        worksheet.Cells(entery.insert_offset, col_index.code.value).Value = entery.code
+        worksheet.Cells(entery.insert_offset, col_index.repere_destokage.value).Value = entery.repere_destokage
+        worksheet.Cells(entery.insert_offset, col_index.destination.value).Value = entery.destination
+        worksheet.Cells(entery.insert_offset, col_index.repere_stokage.value).Value = entery.repere_stokage
+        worksheet.Cells(entery.insert_offset, col_index.bascule.value).Value = entery.bascule
+        worksheet.Cells(entery.insert_offset, col_index.index_bascule.value).Value = entery.index_bascule
+        worksheet.Cells(entery.insert_offset, col_index.index_horaire.value).Value = entery.index_horaire
+        worksheet.Cells(entery.insert_offset, col_index.post.value).Value = entery.post
+        entery.heure = datetime.datetime.now().strftime("%H:00")
+        worksheet.Cells(entery.insert_offset, col_index.heures.value).Value = entery.heure
 
-#TODO: wrap everything in a main function and make it callable with sys args
-
+def next_row():
+    excel_entery.insert_offset = excel_entery.insert_offset + 1
 
 arr_type = ctypes.c_int * 10
 
+#check sys args
 if __name__ == "__main__":
+    #check sys args
+    if len(sys.argv) != 2:
+        print(s.RED + "Invalid number of arguments, please provide the name of the excel file to write to" + s.RESET)
+        print(s.RED + "syntax: py com-bigbrain.py <excel file name> [itemID] [OPC server] [OPC wrapper]" + s.RESET)
+        exit()
     
-    arr = arr_type(1) #safe array to access data from the COM interface, no reason to be 10 elements long just did it 
-    arr[1] = 2 #for whatever stupid fucking reason, the COM interface starts arrays from 1 instead of 0; thus we put the propertyID of the Value in the 1st (which is the second) element of the array
-    arr[2] = 3 #reading item quality too, just u know for shits and giggles
+    #check if excel fileexists
+    excel_file = sys.argv[1]
+    if not os.path.isfile(excel_file):
+        print(s.RED + "Excel file not found" + s.RESET)
+        exit()
+
+    
+    try:
+        OPC_server = sys.argv[3]
+    except IndexError:
+        OPC_server = 'Schneider-Aut.OFS.2'
+        
+
+    try:
+        wrapper = sys.argv[4]
+    except IndexError:
+        wrapper = 'Graybox.OPC.DAWrapper'
+
+    try:
+        item = sys.argv[2]
+    except IndexError:
+        item = 'DevExample_1!Energie_1_Active_BPBIS'
+
+    
+    arr = arr_type(1) 
+    arr[1] = 2 
+    arr[2] = 3 
 
 
     try:
-        client = win32com.client.Dispatch('Graybox.OPC.DAWrapper') #this wrapper provides functions that allow interfacing with OPC-DA through COM.
+        client = win32com.client.Dispatch(wrapper) #this wrapper provides functions that allow interfacing with OPC-DA through COM.
     except:
         print(s.RED + "cannot create win32 client" + s.RESET) 
         exit()
 
-    #TODO: this should probably be a system argument. 
-
     try:
-        result = client.Connect('Schneider-Aut.OFS.2') #the server in question
+        result = client.Connect(OPC_server) #the server in question
     except pywintypes.com_error as e:
         print(s.RED + "Client connect failed with error {0},\nCheck the server is running and the server name is spelt correctly".format(e.hresult) + s.RESET)
         client.Disconnect()
         exit()
         
-        
+        arduino
     print(s.YELLOW + 'testing connectivety with OPC server...' + s.RESET)
     try:
-        result = client.GetItemProperties('DevExample_1!Energie_1_Active_BPBIS', 2, arr)
+        result = client.GetItemProperties(item, 2, arr) # the 2 means reading 2 items, the arr has the item property IDs (2 for value 3 for quality)
     except pywintypes.com_error as e:
         print(s.RED + "Method call failed with HRESULT {}".format(e.hresult))
         print("\n error decoded: {0}", format(client.GetErrorString(e.hresult)) + s.RESET)
@@ -109,12 +165,13 @@ if __name__ == "__main__":
     print(s.YELLOW + "openning excel file..."+s.RESET)
 
     try:
-        workbook = excel.Workbooks.Open("C:/Users/Yasser Mimouni/Desktop/pfa me/python opc/book.xlsx")
+        workbook = excel.Workbooks.Open(excel_file)
     except pywintypes.com_error as e:
         print(s.RED + "error occured while loading file to excel instance: " + s.RESET)
         print(e)
         client.Disconnect()
         excel = None
+        exit()
 
     print(s.GREEN + "excel file loaded, configuration finished sucessfully." + s.RESET)
     excel.Visible = True
@@ -127,10 +184,21 @@ if __name__ == "__main__":
     print(s.YELLOW + "Starting read-write loop" +s.RESET)
 
     #schedule.every(3).seconds.do(write)
-    excel_entery = entery('', '','', '', '', 0, 0, 0, '')
-    schedule.every().hour.do(write_entery_to_excel, excel_entery)
+    excel_entery = entery("quality", "code", "repere_destokage", "destination", "repere_stokage", "bascule", 0, 0, "post")
+    excel_entery.insert_offset = 17
+    schedule.every(3).seconds.do(write_entery_to_excel, [excel_entery])
+    schedule.every(60).seconds.do(next_row)
 
     while True:
-        
+        try:
+            result = client.GetItemProperties(item, 2, arr) # the 2 means reading 2 items, the arr has the item property IDs (2 for value 3 for quality)
+        except pywintypes.com_error as e:
+            print(s.RED + "Method call failed with HRESULT {}".format(e.hresult))
+            print("\n error decoded: {0}", format(client.GetErrorString(e.hresult)) + s.RESET)
+            client.Disconnect()
+            exit()
+            
+        if(result[1] == (0, 0)):
+            excel_entery.update_index(result[0][0], result[0][1])
         schedule.run_pending()
 

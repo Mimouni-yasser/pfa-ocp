@@ -11,3 +11,6 @@ IP-management/IPmanagement/db.sqlite3
 out.sql
 python opc/book.xlsm
 python opc/__pycache__/COM-server.cpython-311.pyc
+python opc/book.xlsm
+python opc/~$book.xlsm
+.vscode/launch.json
