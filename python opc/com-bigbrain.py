@@ -2,12 +2,12 @@ import win32com.client
 import ctypes
 import pywintypes
 import schedule
-from time import sleep
 from enum import Enum
 import sys
 import os.path
 import datetime
 
+arr_type = ctypes.c_int * 10
 
 
 class s():
@@ -60,8 +60,9 @@ class entery():
         self.index_horaire = index_horaire
         self.post = post
         self.insert_offset = entery.count + 1
-        self.heure = 0
         entery.count = entery.count + 1
+        self.heure = datetime.datetime.now().strftime("%H:00")
+        self.color = '0xFFFFFF'
         
     def update_index(self, bascule, horaire):
         self.index_bascule = bascule
@@ -82,10 +83,10 @@ def write_entery_to_excel(current_enteries: list[entery]):
         entery.heure = datetime.datetime.now().strftime("%H:00")
         worksheet.Cells(entery.insert_offset, col_index.heures.value).Value = entery.heure
 
-def next_row():
+def next_row(changed: bool):
+    excel_entery.color = '0xFFFF00'
+    excel_entery.heure = ' '
     excel_entery.insert_offset = excel_entery.insert_offset + 1
-
-arr_type = ctypes.c_int * 10
 
 #check sys args
 if __name__ == "__main__":
@@ -175,30 +176,38 @@ if __name__ == "__main__":
 
     print(s.GREEN + "excel file loaded, configuration finished sucessfully." + s.RESET)
     excel.Visible = True
-    ########################
-    # sleep(5)
-    # client.Disconnect()
-    # workbook.Close(False)
-    # excel = None
-    ######################
     print(s.YELLOW + "Starting read-write loop" +s.RESET)
 
     #schedule.every(3).seconds.do(write)
     excel_entery = entery("quality", "code", "repere_destokage", "destination", "repere_stokage", "bascule", 0, 0, "post")
     excel_entery.insert_offset = 17
     schedule.every(3).seconds.do(write_entery_to_excel, [excel_entery])
-    schedule.every(60).seconds.do(next_row)
+    schedule.every(60).seconds.do(next_row, True)
 
     while True:
+        
+        #TODO read bascule index and index horaire from server
         try:
-            result = client.GetItemProperties(item, 2, arr) # the 2 means reading 2 items, the arr has the item property IDs (2 for value 3 for quality)
+            result = client.GetItemProperties(item, 2, arr) # the 2 means reading 2 item properties, the arr has the item property IDs (2 for value 3 for quality)
         except pywintypes.com_error as e:
             print(s.RED + "Method call failed with HRESULT {}".format(e.hresult))
             print("\n error decoded: {0}", format(client.GetErrorString(e.hresult)) + s.RESET)
             client.Disconnect()
-            exit()
-            
+            exit()  
         if(result[1] == (0, 0)):
             excel_entery.update_index(result[0][0], result[0][1])
+        else:
+            print(s.RED + "error {1} getting result, exiting...".format(result[1]))
+            client.Disconnect()
+            workbook.Close(False)
+            exit()
+        
+        
+        #TODO impliment quality changed check
+        if(QUALITY_CHANGED):
+            write_entery_to_excel(excel_entery)
+            next_row(False)
+            QUALITY_CHANGED = False
         schedule.run_pending()
 
+#TODO: add saving at 00:00 (and periodically too)
