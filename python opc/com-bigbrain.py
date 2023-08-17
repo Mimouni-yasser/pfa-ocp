@@ -20,6 +20,7 @@ class s():
     WHITE  = '\33[37m'
     UNDERLINE = '\033[4m'
     RESET = '\033[0m'
+
     
 class sheet(Enum):
     RPT1 = 1
@@ -47,6 +48,7 @@ class col_index(Enum):
     post = 14
     heures = 2
     
+
 class entery():
     count = 16
     def __init__(self, quality: str, code: str, repere_destokage:str, destination:str, repere_stokage:str, bascule:str, index_bascule: int, index_horaire: int, post: str):
@@ -67,7 +69,9 @@ class entery():
     def update_index(self, bascule, horaire):
         self.index_bascule = bascule
         self.index_horaire = horaire
-    
+
+
+        
 def write_entery_to_excel(current_enteries: list[entery]):
     worksheet = workbook.Sheets(1)
     for entery in current_enteries:
@@ -102,7 +106,7 @@ if __name__ == "__main__":
         print(s.RED + "Excel file not found" + s.RESET)
         exit()
 
-    
+
     try:
         OPC_server = sys.argv[3]
     except IndexError:
