@@ -9,6 +9,7 @@ import datetime
 
 arr_type = ctypes.c_int * 10
 
+QUALITY_CHANGED = False #REMOVE THIS WHEN QUALITY CHANGED IS IMPLEMENTED
 
 class s():
     BLACK = '\033[30m'
@@ -87,10 +88,21 @@ def write_entery_to_excel(current_enteries: list[entery]):
         entery.heure = datetime.datetime.now().strftime("%H:00")
         worksheet.Cells(entery.insert_offset, col_index.heures.value).Value = entery.heure
 
-def next_row(changed: bool):
-    excel_entery.color = '0xFFFF00'
-    excel_entery.heure = ' '
+def next_row(changed: bool, excel_entery: entery):
+    if(changed):
+        excel_entery.color = '0xFFFF00'
+        excel_entery.heure = ' '
+    else:
+        excel_entery.color = '0xFFFF00'
+        excel_entery.heure = datetime.datetime.now().strftime("%H:00")
     excel_entery.insert_offset = excel_entery.insert_offset + 1
+
+
+def change_quality():
+    global QUALITY_CHANGED
+    QUALITY_CHANGED = True
+
+
 
 #check sys args
 if __name__ == "__main__":
@@ -186,16 +198,17 @@ if __name__ == "__main__":
     excel_entery = entery("quality", "code", "repere_destokage", "destination", "repere_stokage", "bascule", 0, 0, "post")
     excel_entery.insert_offset = 17
     schedule.every(3).seconds.do(write_entery_to_excel, [excel_entery])
-    schedule.every(60).seconds.do(next_row, True)
+    schedule.every(20).seconds.do(next_row, False, excel_entery)
+    schedule.every(5).seconds.do(change_quality)
 
     while True:
         
-        #TODO read bascule index and index horaire from server
+        #TODO read index bascule and index horaire from server (get the var names)
         try:
             result = client.GetItemProperties(item, 2, arr) # the 2 means reading 2 item properties, the arr has the item property IDs (2 for value 3 for quality)
         except pywintypes.com_error as e:
             print(s.RED + "Method call failed with HRESULT {}".format(e.hresult))
-            print("\n error decoded: {0}", format(client.GetErrorString(e.hresult)) + s.RESET)
+            print("\nerror decoded: {0}", format(client.GetErrorString(e.hresult)) + s.RESET)
             client.Disconnect()
             exit()  
         if(result[1] == (0, 0)):
@@ -209,9 +222,11 @@ if __name__ == "__main__":
         
         #TODO impliment quality changed check
         if(QUALITY_CHANGED):
-            write_entery_to_excel(excel_entery)
-            next_row(False)
+            next_row(True, excel_entery)
+            write_entery_to_excel([excel_entery])
             QUALITY_CHANGED = False
+            
+            
         schedule.run_pending()
 
 #TODO: add saving at 00:00 (and periodically too)
