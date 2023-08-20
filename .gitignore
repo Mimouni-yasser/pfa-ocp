@@ -12,3 +12,4 @@ out.sql
 python opc/book.xlsm
 python opc/__pycache__/COM-server.cpython-311.pyc
 .vscode/launch.json
+python opc/~$book.xlsm

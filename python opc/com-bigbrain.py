@@ -74,7 +74,11 @@ class entery():
 
         
 def write_entery_to_excel(current_enteries: list[entery]):
+    
     worksheet = workbook.Sheets(1)
+    for sheet in workbook.Sheets:
+        sheet.Range("R10").Value = datetime.datetime.now().strftime("%d/%m/%Y")
+        
     for entery in current_enteries:
         worksheet.Cells(entery.insert_offset, col_index.quality.value).Value = entery.quality
         worksheet.Cells(entery.insert_offset, col_index.code.value).Value = entery.code
@@ -87,7 +91,13 @@ def write_entery_to_excel(current_enteries: list[entery]):
         worksheet.Cells(entery.insert_offset, col_index.post.value).Value = entery.post
         entery.heure = datetime.datetime.now().strftime("%H:00")
         worksheet.Cells(entery.insert_offset, col_index.heures.value).Value = entery.heure
-
+    #save workbook
+    
+def temp_save():
+    time = datetime.datetime.now().strftime("%H-%M-%S")
+    date = datetime.datetime.now().strftime("%d-%m-%Y")
+    workbook.SaveCopyAs(os.getcwd() + "/TEMP SAVES/temp-save at "+date + " " + time + ".xlsm")
+    
 def next_row(changed: bool, excel_entery: entery):
     if(changed):
         excel_entery.color = '0xFFFF00'
@@ -98,9 +108,18 @@ def next_row(changed: bool, excel_entery: entery):
     excel_entery.insert_offset = excel_entery.insert_offset + 1
 
 
-def change_quality():
+def check_quality(current_entry: entery):
     global QUALITY_CHANGED
-    QUALITY_CHANGED = True
+    if(current_entry.quality != 'wtf'):
+        pass
+    else:
+        QUALITY_CHANGED = True
+    
+def save_workbook():
+    for sheet in workbook.Sheets:
+        sheet.Range("R10").Value = datetime.datetime.now().strftime("%d/%m/%Y")
+        sheet.Range("Q15").Value = datetime.datetime.now().strftime("%d/%m/%Y")
+    workbook.SaveAs(os.getcwd() + '/rapport journalier {0}.xlsx'.format(datetime.datetime.now().strftime("%d-%m-%Y")))
 
 
 
@@ -153,8 +172,6 @@ if __name__ == "__main__":
         print(s.RED + "Client connect failed with error {0},\nCheck the server is running and the server name is spelt correctly".format(e.hresult) + s.RESET)
         client.Disconnect()
         exit()
-        
-        arduino
     print(s.YELLOW + 'testing connectivety with OPC server...' + s.RESET)
     try:
         result = client.GetItemProperties(item, 2, arr) # the 2 means reading 2 items, the arr has the item property IDs (2 for value 3 for quality)
@@ -190,6 +207,12 @@ if __name__ == "__main__":
         excel = None
         exit()
 
+    try:
+        os.mkdir("TEMP SAVES")
+    except FileExistsError:
+        pass
+    
+    
     print(s.GREEN + "excel file loaded, configuration finished sucessfully." + s.RESET)
     excel.Visible = True
     print(s.YELLOW + "Starting read-write loop" +s.RESET)
@@ -198,8 +221,10 @@ if __name__ == "__main__":
     excel_entery = entery("quality", "code", "repere_destokage", "destination", "repere_stokage", "bascule", 0, 0, "post")
     excel_entery.insert_offset = 17
     schedule.every(3).seconds.do(write_entery_to_excel, [excel_entery])
-    schedule.every(20).seconds.do(next_row, False, excel_entery)
-    schedule.every(5).seconds.do(change_quality)
+    schedule.every().minute.do(temp_save)
+    schedule.every().hour.do(next_row, False, excel_entery)
+    schedule.every(5).seconds.do(check_quality, excel_entery)
+    schedule.every().day.at("00:00").do(save_workbook, [excel_entery])
 
     while True:
         
@@ -219,8 +244,6 @@ if __name__ == "__main__":
             workbook.Close(False)
             exit()
         
-        
-        #TODO impliment quality changed check
         if(QUALITY_CHANGED):
             next_row(True, excel_entery)
             write_entery_to_excel([excel_entery])
@@ -228,5 +251,3 @@ if __name__ == "__main__":
             
             
         schedule.run_pending()
-
-#TODO: add saving at 00:00 (and periodically too)
