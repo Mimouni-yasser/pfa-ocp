@@ -1,9 +1,29 @@
 const user_input = $(".user-input")
 const IP_div = $('#replaceable-content')
+const modify_button = $('#modify-button')
+const add_button = $('#add-button')
 const endpoint = '/'
 const delay_by_in_ms = 200
 let scheduled_function = false
 let last_IP_search
+
+function pushNotify(status, title, text) {
+    new Notify({
+      status: status,
+      title: title,
+      text: text,
+      effect: 'fade',
+      speed: 500,
+      showIcon: true,
+      showCloseButton: true,
+      autoclose: true,
+      autotimeout: 2000,
+      gap: 20,
+      distance: 20,
+      type: 1,
+      position: 'right top'
+    })
+  }
 
 
 function isEqual(obj1, obj2) {
@@ -33,7 +53,7 @@ var changed = function(instance, cell, x, y, value) {
     COMMENT = results_sheet.getCellFromCoords(2,y).innerHTML
     TYPE = results_sheet.getCellFromCoords(3,y).innerHTML
     
-    $.post('update/', {ip: IP, mac:MAC, comment: COMMENT, type: TYPE})
+    $.post('/', {ip: IP, mac:MAC, comment: COMMENT, type: TYPE})
         .done(function(kk){
             console.log(kk)
             scheduled_function = setInterval(() => {
@@ -45,7 +65,7 @@ var changed = function(instance, cell, x, y, value) {
 results_sheet = jspreadsheet(document.getElementById('spreadsheet'), {
     columns: [
 
-        { type: 'text', title:'IP', width:200 },
+        { type: 'text', title:'IP', width:200, editable: false },
         { type: 'text', title:'MAC', width:200 },
         { type: 'text', title:'COMMENTAIRE', width:300 },
         { type: 'text', title:'type', width:200 },
@@ -55,6 +75,7 @@ results_sheet = jspreadsheet(document.getElementById('spreadsheet'), {
     allowDeleteRow: false,
     allowDeleteColumn: false,
     allowInsertRow: false,
+    editable: false,
     onchange: changed,
 });
 
@@ -97,3 +118,39 @@ ajax_call(endpoint, last_IP_search)
 }, 2000);
 
 
+modify_button.on('click', function () {
+    if(results_sheet.options.editable === true)
+        results_sheet.options.editable = false
+    else
+        results_sheet.options.editable = true
+
+        this.innerHTML = (results_sheet.options.editable === false) ? 'activer modification' : 'deactiver modification'
+        c = (results_sheet.options.editable === false) ? 'lightgreen' : 'lightcoral'
+        this.style.backgroundColor = c
+        $(".jexcel_container").css('background', c)
+    })
+
+add_button.on('click', function () {
+    IP = $('#IP-add').val()
+    MAC = $('#MAC-add').val()
+    COMMENT = $('#comment-add').val()
+    TYPE = $('#type-add').val()
+
+    $.post('add/', {ip: IP, mac:MAC, comment: COMMENT, type: TYPE})
+        .done(function(kk){
+            console.log(kk == 'ok')
+            if(kk == 'ok'){
+                pushNotify('success', 'ajout reussi', 'l\'ip' + ip + ' a ete ajouter')
+            }
+            else
+            {
+                pushNotify('error', 'ajout echouer', kk)
+            }
+        })
+
+        setTimeout(() => {
+            add_button.html('ajouter')
+            add_button.css('background-color', 'blue')
+        }, 1000);
+
+})

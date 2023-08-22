@@ -11,6 +11,25 @@ def update(request):
     
     return 'ok'
 
+def add(request):
+    if request.method == 'POST':
+        ip = request.POST.get('ip') or None
+        mac = request.POST.get('mac') or None
+        comment = request.POST.get('comment') or None
+        type = request.POST.get('type') or None
+        if ip is None or mac is None or comment is None or type is None:
+            return HttpResponse('champs manquants')
+        if IP_field.objects.filter(IP=ip).exists():
+            return HttpResponse('l\'adresse IP' + ip + ' existe déjà')
+        else:
+            obj = IP_field(IP=ip)
+            obj.MAC = mac
+            obj.comment = comment
+            obj.device_type = type
+            obj.save()
+        
+            return HttpResponse('ok')
+
 
 def index(request):
     

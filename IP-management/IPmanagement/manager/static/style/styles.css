@@ -11,6 +11,7 @@ table, tr
     flex-direction: column;
     justify-content: space-evenly;
 }
+
 .search-bar span
 {
     margin-top: 1rem;
@@ -24,6 +25,22 @@ table, tr
     flex-direction: row;
     justify-content: space-evenly;
 }
+
+#add-fields
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.add-bar
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+
 
 #results-sheet
 {
@@ -46,4 +63,19 @@ table, tr
 
 #spreadsheet::-webkit-scrollbar-thumb {
     background: #73AD21;
+}
+
+.modifying
+{
+    background-color: red;
+}
+
+#modify-button
+{
+    background-color: green;
+}
+
+#add-button
+{
+    background-color: blue;
 }

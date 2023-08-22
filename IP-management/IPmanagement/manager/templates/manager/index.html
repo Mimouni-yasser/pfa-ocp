@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title> hello lol </title>
+<title> DATABASE IP </title>
 {% block header %}
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 {%load static%}
 <script src="{% static "javascript/jexcel.js" %}"></script>
 <script src="{% static "javascript/jsuites.js" %}"></script>
+<!-- CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-notify@0.5.5/dist/simple-notify.min.css" />
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/simple-notify@0.5.5/dist/simple-notify.min.js"></script>
 <link rel="stylesheet" href="{% static "style/jsuites.css" %}" type="text/css" />
 <link rel="stylesheet" href="{% static "style/jexcel.css" %}" type="text/css" />
 <script src="{% static "javascript/jquery.js" %}"></script>
@@ -29,11 +34,34 @@
           <span> Comment </span>
           <input class="user-input" id="comment-search" placeholder="Search">
       </div>
+      <button id="modify-button" class="search-bar"> activer la modification </button>
     </div>
 
       <div id="results-sheet">
         <div id="spreadsheet"></div>
       </div>
+    
+    <div id="add-bar">
+      <div id = 'add-fields'>
+        <div class="add-bar">
+          <span> IP address </span>
+          <input class="user-add" id="IP-add" placeholder="add">
+        </div>
+        <div class="add-bar">
+          <span> MAC address </span>
+          <input class="user-add" id="MAC-add" placeholder="add">
+        </div>
+        <div class="add-bar">
+            <span> Commentaire </span>
+            <input class="user-add" id="comment-add" placeholder="add">
+        </div>
+        <div class="add-bar">
+          <span> type </span>
+          <input class="user-add" id="type-add" placeholder="add">
+      </div>
+        <button id="add-button" class="add-bar"> ajouter </button>
+      </div>
+    </div>
 
   {% endblock %}
 </body>
