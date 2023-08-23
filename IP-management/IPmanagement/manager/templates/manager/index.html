@@ -8,10 +8,10 @@
 <script src="{% static "javascript/jexcel.js" %}"></script>
 <script src="{% static "javascript/jsuites.js" %}"></script>
 <!-- CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-notify@0.5.5/dist/simple-notify.min.css" />
+<link rel="stylesheet" href="{% static "style/simple-notify.min.css" %}" />
 
 <!-- JS -->
-<script src="https://cdn.jsdelivr.net/npm/simple-notify@0.5.5/dist/simple-notify.min.js"></script>
+<script src=" {%static "javascript/simple-notify.min.js" %} "></script>
 <link rel="stylesheet" href="{% static "style/jsuites.css" %}" type="text/css" />
 <link rel="stylesheet" href="{% static "style/jexcel.css" %}" type="text/css" />
 <script src="{% static "javascript/jquery.js" %}"></script>
@@ -20,7 +20,6 @@
 
 <body>
   {% block content %} 
-  <h3>IP DATABASE</h3>
     <div id = 'search-fields'>
       <div class="search-bar">
         <span> IP address </span>

@@ -1,3 +1,8 @@
+body
+{
+    height: 100vh;
+}
+
 table, tr
 {
     table-layout: fixed;
@@ -10,6 +15,7 @@ table, tr
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
+    height: 5vh;
 }
 
 .search-bar span
