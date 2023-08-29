@@ -48,12 +48,13 @@ function isObject(object) {
 
 var changed = function(instance, cell, x, y, value) {
     clearInterval(scheduled_function)
-    IP = results_sheet.getCellFromCoords(0, y).innerHTML
-    MAC = results_sheet.getCellFromCoords(1, y).innerHTML
-    COMMENT = results_sheet.getCellFromCoords(2,y).innerHTML
-    TYPE = results_sheet.getCellFromCoords(3,y).innerHTML
+    PK = results_sheet.getCellFromCoords(0, y).innerHTML
+    IP = results_sheet.getCellFromCoords(1, y).innerHTML
+    MAC = results_sheet.getCellFromCoords(2, y).innerHTML
+    COMMENT = results_sheet.getCellFromCoords(3,y).innerHTML
+    TYPE = results_sheet.getCellFromCoords(4,y).innerHTML
     
-    $.post('/', {ip: IP, mac:MAC, comment: COMMENT, type: TYPE})
+    $.post('/', {pk: PK, ip: IP, mac:MAC, comment: COMMENT, type: TYPE})
         .done(function(kk){
             console.log(kk)
             scheduled_function = setInterval(() => {
@@ -62,29 +63,56 @@ var changed = function(instance, cell, x, y, value) {
         })
 }
 
+var select = function (instance, col, row)
+{
+clearInterval(scheduled_function)
+ if(col == 6)
+ {
+    PK = results_sheet.getCellFromCoords(0, row).innerHTML
+    IP = results_sheet.getCellFromCoords(1, row).innerHTML
+    $.post("delete/", {pk: PK, ip: IP})
+    .done(function(res) {
+        if(res == 'ok') pushNotify('success', 'supprimé', 'l\'ip' + IP + ' a ete supprimer')
+        else
+        {
+             pushNotify('error', 'l\'ip' + IP + 'ne peut pas etre supprimer', res)
+        }
+    })
+ }
+ scheduled_function = setInterval(() => {
+                ajax_call(endpoint, last_IP_search)
+                }, 2000);
+}
+
 results_sheet = jspreadsheet(document.getElementById('spreadsheet'), {
     columns: [
-
-        { type: 'text', title:'IP', width:200, editable: false },
+        {type: 'number', title: 'pk', width: 50, editable: false},
+        { type: 'text', title:'IP', width:200 },
         { type: 'text', title:'MAC', width:200 },
         { type: 'text', title:'COMMENTAIRE', width:300 },
         { type: 'text', title:'type', width:200 },
         { type: 'calendar', title:'date ajouter', width:200 },
+        { title: 'delete', width: 100, type: 'text'}
     ],
     allowInsertColumn: false,
     allowDeleteRow: false,
     allowDeleteColumn: false,
     allowInsertRow: false,
-    editable: false,
     onchange: changed,
+    onselection: select,
 });
 
 let ajax_call = function (endpoint, request_parameters) {
     $.getJSON(endpoint, request_parameters)
         .done(response => {
+                server_res = response
                 sheet_data = results_sheet.getData()
                 data = JSON.parse(response)
-                data.forEach((e,i,arr)=>arr[i]=Object.values(e['fields']),data)
+                data.forEach((e,i,arr)=>{
+                    arr[i]=Object.values(Object.assign({}, {pk: e.pk}, e['fields'], {button: '❌'}))
+                }
+                ,data)
+
                 if(isEqual(sheet_data, data) === false)
                     results_sheet.setData(data)
 
@@ -97,7 +125,8 @@ user_input.on('keyup', function () {
     const request_parameters = {
         ip: $('#IP-search').val(), // value of user_input: the HTML element with ID user-input
         mac: $('#MAC-search').val(),
-        comment: $('#comment-search').val()
+        comment: $('#comment-search').val(),
+        type: $('#type-search').val()
     }
     
     last_IP_search = request_parameters
@@ -152,5 +181,4 @@ add_button.on('click', function () {
             add_button.html('ajouter')
             add_button.css('background-color', 'blue')
         }, 1000);
-
 })

@@ -7,6 +7,14 @@ import sys
 import os.path
 import datetime
 
+from pathlib import Path
+import win32com
+
+gen_py_path = os.getcwd() + '/gen_py'
+
+Path(gen_py_path).mkdir(parents=True, exist_ok=True)
+win32com.__gen_path__ = gen_py_path
+
 arr_type = ctypes.c_int * 10
 
 QUALITY_CHANGED = False #REMOVE THIS WHEN QUALITY CHANGED IS IMPLEMENTED
@@ -73,7 +81,7 @@ class entery():
 
 
         
-def write_entery_to_excel(current_enteries: list[entery]):
+def write_entery_to_excel(current_enteries):
     
     worksheet = workbook.Sheets(1)
     for sheet in workbook.Sheets:
@@ -125,14 +133,13 @@ def save_workbook():
 
 #check sys args
 if __name__ == "__main__":
-    #check sys args
-    if len(sys.argv) != 2:
-        print(s.RED + "Invalid number of arguments, please provide the name of the excel file to write to" + s.RESET)
-        print(s.RED + "syntax: py com-bigbrain.py <excel file name> [itemID] [OPC server] [OPC wrapper]" + s.RESET)
-        exit()
-    
     #check if excel fileexists
-    excel_file = sys.argv[1]
+    
+    try:
+        excel_file = sys.argv[1]
+    except IndexError:
+        excel_file = os.getcwd() + '/book.xlsm'
+        
     if not os.path.isfile(excel_file):
         print(s.RED + "Excel file not found" + s.RESET)
         exit()
@@ -189,7 +196,7 @@ if __name__ == "__main__":
         print(s.GREEN + "all good, setting up excel... (values read = {0})".format(result[0]) + s.RESET)
 
     try:
-        excel = win32com.client.gencache.EnsureDispatch('Excel.Application')
+        excel = win32com.client.Dispatch('Excel.Application')
     except:
         print(s.RED + "error occured while creating the excel com client"+s.RESET)
         client.Disconnect()
@@ -221,9 +228,9 @@ if __name__ == "__main__":
     excel_entery = entery("quality", "code", "repere_destokage", "destination", "repere_stokage", "bascule", 0, 0, "post")
     excel_entery.insert_offset = 17
     schedule.every(3).seconds.do(write_entery_to_excel, [excel_entery])
-    schedule.every().minute.do(temp_save)
+    schedule.every(30).minutes.do(temp_save)
     schedule.every().hour.do(next_row, False, excel_entery)
-    schedule.every(5).seconds.do(check_quality, excel_entery)
+    #schedule.every(5).seconds.do(check_quality, excel_entery)
     schedule.every().day.at("00:00").do(save_workbook, [excel_entery])
 
     while True:

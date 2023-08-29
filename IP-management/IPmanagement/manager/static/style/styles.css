@@ -1,13 +1,9 @@
-body
-{
-    height: 100vh;
-}
 
 table, tr
 {
     table-layout: fixed;
     border: 1px solid black;
-    border-collapse: collapse;
+    border-collapse: collapse;  
 }
 
 .search-bar
@@ -21,7 +17,7 @@ table, tr
 .search-bar span
 {
     margin-top: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.3rem;
     font-weight: bolder;
 }
 
@@ -50,7 +46,7 @@ table, tr
 
 #results-sheet
 {
-    height: 75vh;
+    height: 86vh;
     margin-top: 1rem;
     display: flex;
     justify-content: center;
@@ -84,4 +80,11 @@ table, tr
 #add-button
 {
     background-color: blue;
+}
+
+.delete-button {
+    background-color: white;
+    color: white;
+    border: none;
+    cursor: pointer;
 }

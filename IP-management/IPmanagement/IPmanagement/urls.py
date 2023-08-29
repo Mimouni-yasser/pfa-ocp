@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("update/", include("manager.urls")),
     path("add/", include("manager.urls")),
+    path("delete/", include("manager.urls")),
 ]
